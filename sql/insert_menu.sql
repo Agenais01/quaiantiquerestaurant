@@ -1,0 +1,2 @@
+INSERT INTO `menus` (`id`, `dessert_id`, `starter_dish_id`, `main_dish_id`, `drink_id`, `name`, `price`, `description`, `is_vegan`, `created`, `updated`) 
+VALUES (NULL, '2', '2', '1', '3', 'Menu végétarien', '20.90', '(A venir)', '1', '2026-06-06 15:45:27.000000', NULL);
