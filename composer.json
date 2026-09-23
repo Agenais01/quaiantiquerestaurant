@@ -1,0 +1,14 @@
+{
+    "name": "jjacq/quaiantiquerestaurant",
+    "description": "A personal project about a restaurant",
+    "type": "project",
+    "require": {
+        "giggsey/libphonenumber-for-php": "^9.0"
+    },
+    "authors": [
+        {
+            "name": "Agenais01",
+            "email": "j.jacques-perka@hotmail.com"
+        }
+    ]
+}

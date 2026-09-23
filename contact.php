@@ -6,6 +6,8 @@
     // 1. Récupérer les champs soumis du formulaire
     $formData = $_POST;
     unset($_POST);
+
+    // Définir les champs obligatoires du formulaire
     $requiredFields = [
         'contact-lastname', 
         'contact-firstname', 
@@ -29,10 +31,12 @@
                 continue;
             }
 
-            // Je nettoie la valeur du champ actuel en supprimant les espaces superflus au début et à la fin de la chaîne
+            // Je nettoie la valeur du champ actuel en supprimant les espaces superflus au début et à 
+            // la fin de la chaîne
             $tempValue = trim($fieldValue);
 
-            // J'affiche un message d'erreur si le champ est vide et qu'il est obligatoire, sinon je stocke la valeur nettoyée dans le tableau $formData
+            // J'affiche un message d'erreur si le champ est vide et qu'il est obligatoire, sinon 
+            // je stocke la valeur nettoyée dans le tableau $formData
             if (empty($tempValue) && in_array($formField, $requiredFields)) {
                 $errors[] = 'Le champ "' . $formField . '" est vide !';
             } else {
@@ -42,7 +46,9 @@
     }
 
     // 3. Valider le format des données reçues
-
+    if (!filter_var($formData['contact-email'], FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'L\'adresse email n\'est pas valide !';
+    }
 
     // 4. Si des erreurs sont détectées, les lister dans un tableau $errors pour les afficher sur la page
 

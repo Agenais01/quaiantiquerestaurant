@@ -11,6 +11,6 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) {
 		die;
 });
 
-require //nom du fichier;
+require 'nom du fichier.php';
 echo 'Tout va bien' . PHP_EOL;
 ?>
