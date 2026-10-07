@@ -1,4 +1,10 @@
 <?php
+    require_once __DIR__ . '/vendor/autoload.php';
+
+    // Intégration des librairies de vérification du n° de téléphone
+    use libphonenumber\PhoneNumberUtil;
+    use libphonenumber\NumberParseException;
+
     // Initialisation de quelques variables utiles à la page et aux traitements effectués dessus
     $pageName = 'contact';
     $errors   = [];
@@ -21,9 +27,10 @@
     echo '</pre>';
 
     // 2. Nettoyer les données reçues
-    if (count($formData) === 0) {
-        $errors[] = 'Aucune donnée reçue !';
-    } else {
+    if (count($formData) > 0) {
+        // On instancie l'objet PhoneNumberUtil pour pouvoir utiliser ses méthodes de validation et de formatage des numéros de téléphone
+        $phoneUtil = PhoneNumberUtil::getInstance();
+
         // Je parcours le tableau des données reçues
         foreach ($formData as $formField => $fieldValue) {
             // Je ne traite pas le bouton de soumission du formulaire
@@ -35,6 +42,11 @@
             // la fin de la chaîne
             $tempValue = trim($fieldValue);
 
+            // Maintenant, on veut éliminer tout code malveillant potentiellement présent
+            // dans les données saisies
+            //$tempValue = htmlspecialchars($tempValue, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8');
+            $tempValue = htmlentities(strip_tags($tempValue));
+
             // J'affiche un message d'erreur si le champ est vide et qu'il est obligatoire, sinon 
             // je stocke la valeur nettoyée dans le tableau $formData
             if (empty($tempValue) && in_array($formField, $requiredFields)) {
@@ -43,15 +55,34 @@
                 $formData[$formField] = $tempValue;
             }
         }
+
+        // 3. Valider le format des données reçues
+        if (!filter_var($formData['contact-email'], FILTER_VALIDATE_EMAIL) || 
+            !checkdnsrr(substr(strrchr($formData['contact-email'], '@'), 1), 'MX')
+        ) {
+            $errors[] = 'L\'adresse email n\'est pas valide !';
+        }
+
+        // Vérification du n° de téléphone au format FR
+        if (!empty($formData['contact-phone'])) {
+            try {
+                $phoneNumber = $phoneUtil->parse($formData['contact-phone'], "FR");
+                // Validate the number
+                $isValid = $phoneUtil->isValidNumber($phoneNumber);
+
+                if (!$isValid) {
+                    $errors[] = 'Le n° de téléphone n\'est pas valide !';
+                }
+                // Format the number
+                $phoneNumber = $phoneUtil->format($phoneNumber, \libphonenumber\PhoneNumberFormat::E164); // +41446681800
+            } catch (NumberParseException $e) {
+                $errors[] = 'Le n° de téléphone n\'est pas valide !';
+            }
+        }
+
+        // 4. Si des erreurs sont détectées, les lister dans un tableau $errors pour les afficher sur la page
+
     }
-
-    // 3. Valider le format des données reçues
-    if (!filter_var($formData['contact-email'], FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'L\'adresse email n\'est pas valide !';
-    }
-
-    // 4. Si des erreurs sont détectées, les lister dans un tableau $errors pour les afficher sur la page
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
